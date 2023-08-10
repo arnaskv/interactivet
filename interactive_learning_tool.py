@@ -48,10 +48,16 @@ def add_question(questionnaire, n=1):
 
     question = Question(n, question_text, question_type)
 
+    question = Question(n, question_text, question_type)
+
     if question_type == 'choice':
         question.get_choices()
         question.get_answer()
+        question.get_choices()
+        question.get_answer()
     else:
+        question.get_answer()
+
         question.get_answer()
 
     
@@ -96,6 +102,19 @@ class Question:
     def get_answer(self):
         self.answer = input('Answer: ')
 
+    def add_choice(self, choice):
+        self.choices.append(choice)
+
+    def get_choices(self):
+        while True:
+            choice = input("Enter a choice (or type 'done' to finish): ")
+            if choice.lower() == 'done' and len(self.choices) > 1:
+                break
+            self.add_choice(choice)
+
+    def get_answer(self):
+        self.answer = input('Answer: ')
+
 
 class Questionnaire:
     def __init__(self, csv_file='questions.csv'):
@@ -110,7 +129,11 @@ class Questionnaire:
     def input_question(self):
         pass
 
+    def input_question(self):
+        pass
+
     def ask_question(self, question):
+        print(f'{question.question_id}. {question.question_text}')
         print(f'{question.question_id}. {question.question_text}')
         if question.question_type =='choice':
             for choice in question.choices:
@@ -167,6 +190,7 @@ class Questionnaire:
         for i, q in enumerate(self.questions, start=1):
             print(f"{i}. {q['question_text']}")
             if q['question_type'] == 'choice':
+                print("Choices:", ', '.join(q['choices']))
                 print("Choices:", ', '.join(q['choices']))
             print("Answer:", q['answer'])
             print()
