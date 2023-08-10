@@ -42,7 +42,7 @@ def get_choice(choices, promt='Your choice'):
         return get_choice(choices, promt)
 
 
-def add_question(questionnaire, n=0):
+def add_question(questionnaire, n=1):
     question_text = input('Your question: ')
     question_type = input('Choose the type of question, either "free-form" or "choice": ').strip().lower()
 
@@ -58,14 +58,14 @@ def add_question(questionnaire, n=0):
     questionnaire.add_question(question)
 
     if input('Would you like to add another question? ').lower() in ['yes', 'y']:
-        add_question(n+1)
+        add_question(questionnaire, n+1)
     else:
         questionnaire.write_questions()
         return
 
 
 class Question:
-    def __init__(self, question_id, question_text, question_type, answer, enabled=True, choices=[]):  
+    def __init__(self, question_id, question_text, question_type, answer='', enabled=True, choices=[]):  
         self.question_id = question_id
         self.enabled = enabled
         self.question_text = question_text
@@ -74,11 +74,11 @@ class Question:
         self.answer = answer
 
     @property
-    def type(self):    
+    def question_type(self):    
         return self._question_type
     
-    @type.setter
-    def type(self, question_type):
+    @question_type.setter
+    def question_type(self, question_type):
         if question_type not in ['free-form', 'choice']:
             raise ValueError('Invalid question type.')
         self._question_type = question_type
@@ -140,10 +140,20 @@ class Questionnaire:
 
     def write_questions(self):
         with open(self.csv_file, "w", newline='') as file:
-            field_names = ['id', 'enabled', 'question_text', 'question_type', 'choices', 'answer']
+            field_names = ['question_id', 'enabled', 'question_text', 'question_type', 'choices', 'answer']
             writer = csv.DictWriter(file, fieldnames=field_names)
             writer.writeheader()
-            writer.writerows(self.questions)
+            
+            for q in self.questions:
+                row_dict ={
+                    'question_id': q.question_id,
+                    'enabled': q.enabled,
+                    'question_text': q.question_text,
+                    'question_type': q._question_type,
+                    'choices': q.choices,
+                    'answer': q.answer,
+                }
+                writer.writerow(row_dict)
 
     def reset_questions(self):
         with open(self.csv_file, 'w') as file:
