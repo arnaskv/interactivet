@@ -29,7 +29,6 @@ def main():
 
 def display_menu(options):
     print('Please choose from the following modes:\n')
-
     for idx, option in enumerate(options, start=1):
         print(f'{idx}. {option}')
     print()
@@ -44,52 +43,58 @@ def get_choice(choices, promt='Your choice'):
 
 
 def add_question(questionnaire, n=0):
-    prompt = input('Your question: ')
+    question_text = input('Your question: ')
     question_type = input('Choose the type of question, either "free-form" or "choice": ').strip().lower()
 
+    question = Question(n, question_text, question_type)
+
     if question_type == 'choice':
-        choices = get_question_choices()
-        answer = input('Answer: ')
-        question = Question(n, prompt, answer, choices=choices)
+        question.get_choices()
+        question.get_answer()
     else:
-        answer = input('Answer: ')
-        question = Question(n, prompt, answer)
+        question.get_answer()
+
     
     questionnaire.add_question(question)
 
-    if input('Would you like to enter another question? ').lower() in ['yes', 'y']:
+    if input('Would you like to add another question? ').lower() in ['yes', 'y']:
         add_question(n+1)
     else:
         questionnaire.write_questions()
         return
 
 
-def get_question_choices():
-    options = []
-    while True:
-        option = input("Enter a choice (or type 'done' to finish options): ")
-        if option.lower() == 'done':
-            break
-        options.append(option)
-    return options
-
-
 class Question:
-    def __init__(self, question_id, prompt, answer, enabled=True, choices=[]):  
+    def __init__(self, question_id, question_text, question_type, answer, enabled=True, choices=[]):  
         self.question_id = question_id
         self.enabled = enabled
-        self.prompt = prompt
-        self._question_type = None
+        self.question_text = question_text
+        self._question_type = question_type
         self.choices = choices
         self.answer = answer
 
-    def get_question_type(self):    
+    @property
+    def type(self):    
         return self._question_type
     
-    def set_question_type(self, question_type):
+    @type.setter
+    def type(self, question_type):
         if question_type not in ['free-form', 'choice']:
             raise ValueError('Invalid question type.')
         self._question_type = question_type
+
+    def add_choice(self, choice):
+        self.choices.append(choice)
+
+    def get_choices(self):
+        while True:
+            choice = input("Enter a choice (or type 'done' to finish): ")
+            if choice.lower() == 'done' and len(self.choices) > 1:
+                break
+            self.add_choice(choice)
+
+    def get_answer(self):
+        self.answer = input('Answer: ')
 
 
 class Questionnaire:
@@ -102,8 +107,11 @@ class Questionnaire:
     def add_question(self, question):
         self.questions.append(question)
 
+    def input_question(self):
+        pass
+
     def ask_question(self, question):
-        print(f'{question.question_id}. {question.prompt}')
+        print(f'{question.question_id}. {question.question_text}')
         if question.question_type =='choice':
             for choice in question.choices:
                 print(f'- {choice}')
@@ -132,7 +140,7 @@ class Questionnaire:
 
     def write_questions(self):
         with open(self.csv_file, "w", newline='') as file:
-            field_names = ['id', 'enabled', 'prompt', 'question_type', 'choices', 'answer']
+            field_names = ['id', 'enabled', 'question_text', 'question_type', 'choices', 'answer']
             writer = csv.DictWriter(file, fieldnames=field_names)
             writer.writeheader()
             writer.writerows(self.questions)
@@ -149,7 +157,7 @@ class Questionnaire:
         for i, q in enumerate(self.questions, start=1):
             print(f"{i}. {q['question_text']}")
             if q['question_type'] == 'choice':
-                print("Options:", ', '.join(q['options']))
+                print("Choices:", ', '.join(q['choices']))
             print("Answer:", q['answer'])
             print()
 
