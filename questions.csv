@@ -1,2 +1,4 @@
 question_id,enabled,question_text,question_type,choices,answer
-0,True,lithuania capital?,choice,"['vilnius', 'kaunas', 'siauliau']",vilnius
+1,True,what,choice,"['a', 'b', 'c', 'd', 'a', 'b', 'c']",a
+1,True,where,choice,"['a', 'b', 'c', 'd', 'a', 'b', 'c']",a
+3,True,what is ,choice,"['a', 'b']",a

@@ -42,32 +42,29 @@ def get_choice(choices, promt='Your choice'):
         return get_choice(choices, promt)
 
 
-def add_question(questionnaire, n=1):
+def add_question(questionnaire):
     question_text = input('Your question: ')
     question_type = input('Choose the type of question, either "free-form" or "choice": ').strip().lower()
+    id = questionnaire.get_new_id()
 
-    question = Question(n, question_text, question_type)
-
-    question = Question(n, question_text, question_type)
+    question = Question(id, question_text, question_type)
 
     if question_type == 'choice':
         question.get_choices()
         question.get_answer()
-        question.get_choices()
-        question.get_answer()
     else:
         question.get_answer()
 
-        question.get_answer()
+    q_dict = question.convert_to_dict()
+    questionnaire.add_question(q_dict)
 
-    
-    questionnaire.add_question(question)
-
-    if input('Would you like to add another question? ').lower() in ['yes', 'y']:
-        add_question(questionnaire, n+1)
-    else:
-        questionnaire.write_questions()
-        return
+    while True:
+        answer = input('Would you like to add another question? ').lower()
+        if  answer in ['yes', 'y']:
+            add_question(questionnaire)
+        elif answer in ['no', 'n']:
+            questionnaire.write_questions()
+            return
 
 
 class Question:
@@ -102,18 +99,18 @@ class Question:
     def get_answer(self):
         self.answer = input('Answer: ')
 
-    def add_choice(self, choice):
-        self.choices.append(choice)
+    def convert_to_dict(self):
+        return {
+                    'question_id': self.question_id,
+                    'enabled': self.enabled,
+                    'question_text': self.question_text,
+                    'question_type': self._question_type,
+                    'choices': self.choices,
+                    'answer': self.answer,
+                }
 
-    def get_choices(self):
-        while True:
-            choice = input("Enter a choice (or type 'done' to finish): ")
-            if choice.lower() == 'done' and len(self.choices) > 1:
-                break
-            self.add_choice(choice)
-
-    def get_answer(self):
-        self.answer = input('Answer: ')
+    def convert_from_dict(self):
+        pass
 
 
 class Questionnaire:
@@ -125,12 +122,6 @@ class Questionnaire:
 
     def add_question(self, question):
         self.questions.append(question)
-
-    def input_question(self):
-        pass
-
-    def input_question(self):
-        pass
 
     def ask_question(self, question):
         print(f'{question.question_id}. {question.question_text}')
@@ -168,23 +159,15 @@ class Questionnaire:
             writer.writeheader()
             
             for q in self.questions:
-                row_dict ={
-                    'question_id': q.question_id,
-                    'enabled': q.enabled,
-                    'question_text': q.question_text,
-                    'question_type': q._question_type,
-                    'choices': q.choices,
-                    'answer': q.answer,
-                }
-                writer.writerow(row_dict)
+                writer.writerow(q)
 
     def reset_questions(self):
         with open(self.csv_file, 'w') as file:
             file.write('')
         self.questions.clear()
 
-    def question_enabled(self):
-        pass
+    def get_new_id(self):
+        return len(self.questions) + 1
 
     def display_questions(self):
         for i, q in enumerate(self.questions, start=1):
@@ -194,6 +177,12 @@ class Questionnaire:
                 print("Choices:", ', '.join(q['choices']))
             print("Answer:", q['answer'])
             print()
+
+    def enable_disable(self):
+        pass
+
+    def input_question(self):
+        pass
 
 
 if __name__ == '__main__':
