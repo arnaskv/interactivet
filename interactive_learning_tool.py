@@ -2,27 +2,28 @@ import csv
 
 
 def main():
-    modes = ['Add questions', 'View statistics', 'Disable/enable questions', 'Practice', 'Test', 'Quit']
+    # modes with access shorteners in a list
+    modes = [['Add questions', 'A'], ['View statistics', 'V'], ['Disable/enable questions', 'DE'], ['Practice', 'P'], ['Test', 'T'], ['Quit', 'Q']]
     
     print('Hi, this is your interactive learning tool.')
+    questionnaire = Questionnaire()
 
     while True:
         display_menu(modes)
 
         mode = get_choice(modes, promt='Mode: ')
 
-        if mode == modes[0]:
-            questionnaire = Questionnaire()
-            add_question(questionnaire)
-        elif mode == modes[1]:
+        if mode == 0:
+            questionnaire.input_multiple_questions()
+        elif mode == 1:
             pass
-        elif mode == modes[2]:
+        elif mode == 2:
             pass
-        elif mode == modes[3]:
+        elif mode == 3:
             pass
-        elif mode == modes[4]:
+        elif mode == 4:
             pass
-        elif mode == modes[5]:
+        elif mode == 5:
             print('Exiting the program.')
             break
 
@@ -30,50 +31,28 @@ def main():
 def display_menu(options):
     print('Please choose from the following modes:\n')
     for idx, option in enumerate(options, start=1):
-        print(f'{idx}. {option}')
+        print(f'{idx}. {option[0]}({option[1]})')
     print()
 
 
 def get_choice(choices, promt='Your choice'):
-    choice = input(promt).capitalize()
-    if choice in choices:
-        return choice
-    else:
-        return get_choice(choices, promt)
+    answer = input(promt).lower().capitalize()
+    for idx, choice in enumerate(choices):
+        if answer in choice:
+            return idx
+    # If no match was found, prompt the user again
+    return get_choice(choices, promt)
 
 
-def add_question(questionnaire):
-    question_text = input('Your question: ')
-    question_type = input('Choose the type of question, either "free-form" or "choice": ').strip().lower()
-    id = questionnaire.get_new_id()
-
-    question = Question(id, question_text, question_type)
-
-    if question_type == 'choice':
-        question.get_choices()
-        question.get_answer()
-    else:
-        question.get_answer()
-
-    q_dict = question.convert_to_dict()
-    questionnaire.add_question(q_dict)
-
-    while True:
-        answer = input('Would you like to add another question? ').lower()
-        if  answer in ['yes', 'y']:
-            add_question(questionnaire)
-        elif answer in ['no', 'n']:
-            questionnaire.write_questions()
-            return
-
+    
 
 class Question:
-    def __init__(self, question_id, question_text, question_type, answer='', enabled=True, choices=[]):  
+    def __init__(self, question_id, question_text, question_type, answer='', enabled=True):  
         self.question_id = question_id
         self.enabled = enabled
         self.question_text = question_text
         self._question_type = question_type
-        self.choices = choices
+        self.choices = []
         self.answer = answer
 
     @property
@@ -82,9 +61,15 @@ class Question:
     
     @question_type.setter
     def question_type(self, question_type):
-        if question_type not in ['free-form', 'choice']:
+        question_type = question_type.strip().lower()
+        types = ['free-form', 'f', 'choice', 'c']
+        if question_type not in types:
             raise ValueError('Invalid question type.')
-        self._question_type = question_type
+        if question_type in types[2:]:
+            self._question_type = 'f'
+        else:
+            self._question_type = 'c'
+        
 
     def add_choice(self, choice):
         self.choices.append(choice)
@@ -109,11 +94,8 @@ class Question:
                     'answer': self.answer,
                 }
 
-    def convert_from_dict(self):
-        pass
 
-
-class Questionnaire:
+class Questionnaire():
     def __init__(self, csv_file='questions.csv'):
         self.csv_file = csv_file
         self.questions = []
@@ -122,6 +104,33 @@ class Questionnaire:
 
     def add_question(self, question):
         self.questions.append(question)
+
+    def input_question(self):
+        question_text = input('Your question: ')
+        question_id = self.get_new_id()
+
+        question = Question(question_id, question_text)
+        question.question_type = input('Choose the type of question, either "free-form(F)" or "choice(C)": ')
+
+        if question.question_type == 'c':
+            question.get_choices()
+            question.get_answer()
+        else:
+            question.get_answer()
+
+        question = question.convert_to_dict()
+        self.add_question(question)
+
+    def input_multiple_questions(self):
+        while True:
+            self.input_question()
+            while True:
+                answer = input('Would you like to add another question? [Yes/No]').strip().lower()
+                if  answer in ['yes', 'y']:
+                    break
+                elif answer in ['no', 'n']:
+                    self.write_questions()
+                    return
 
     def ask_question(self, question):
         print(f'{question.question_id}. {question.question_text}')
@@ -179,9 +188,6 @@ class Questionnaire:
             print()
 
     def enable_disable(self):
-        pass
-
-    def input_question(self):
         pass
 
 

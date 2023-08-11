@@ -2,3 +2,7 @@ question_id,enabled,question_text,question_type,choices,answer
 1,True,what,choice,"['a', 'b', 'c', 'd', 'a', 'b', 'c']",a
 1,True,where,choice,"['a', 'b', 'c', 'd', 'a', 'b', 'c']",a
 3,True,what is ,choice,"['a', 'b']",a
+4,True,where is what?,choice,"['some', 'where', 'there', 'fish', 'chip']",there
+5,True,what is it?,choice,"['some', 'where', 'there', 'fish', 'chip']",chip
+6,True,what ,choice,"['a', 'b', 'c', 'd']",a
+7,True,where,choice,"['a', 'b', 'c']",b
