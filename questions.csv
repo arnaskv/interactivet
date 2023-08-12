@@ -1,6 +1,6 @@
-question_id,enabled,question_text,question_type,choices,answer
-1,True,what,c,"['a', 'b', 'c', 'd']",a
-2,True,where,c,"['a', 'b', 'c', 'd']",c
-3,True,what is the capital of Lithuania?,c,"['Kaunas', 'Riga', 'Vilnius']",Vilnius
-4,True,what is the longest river in the world?,c,"['Nemunas', 'Amazon', 'Dubysa']",Amazon
-5,True,Which color is the best?,c,"['yellow', 'blue', 'green', 'red']",green
+question_id,enabled,question_text,question_type,choices,answer,guessed,correct
+1,True,what,c,"['a', 'b', 'c', 'd']",a,0,0
+2,True,where,c,"['a', 'b', 'c', 'd']",c,0,0
+3,True,what is the capital of Lithuania?,c,"['Kaunas', 'Riga', 'Vilnius']",Vilnius,0,0
+4,True,what is the longest river in the world?,c,"['Nemunas', 'Amazon', 'Dubysa']",Amazon,0,0
+5,True,Which color is the best?,c,"['yellow', 'blue', 'green', 'red']",green,0,0

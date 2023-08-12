@@ -1,13 +1,14 @@
-from question import Question
+import getch
 import csv
 import random
 import ast
-import getch
+from datetime import datetime
+from question import Question
 
 
 class Questionnaire():
-    def __init__(self, csv_file='questions.csv'):
-        self.csv_file = csv_file
+    def __init__(self, questions_csv='questions.csv', statistics_csv='statistics.csv'):
+        self.questions_csv = questions_csv
         self.questions = []
         self.load_questions()
         self.points = 0
@@ -71,29 +72,31 @@ class Questionnaire():
 
     def load_questions(self):
         try:
-            with open(self.csv_file, "r") as file:
+            with open(self.questions_csv, "r") as file:
                 reader = csv.DictReader(file)
                 for question in reader:
                     question['question_id'] = int(question['question_id'])
                     question['enabled'] = bool(question['enabled'])
                     question['choices'] = ast.literal_eval(question['choices'])
+                    question['guessed'] = int(question['guessed'])
+                    question['correct'] = int(question['correct'])
                     self.questions.append(question)
         except FileNotFoundError:
             # This will just create an empty CSV file
-            with open(self.csv_file, 'w', newline='') as csv_file:
+            with open(self.questions_csv, 'w', newline='') as file:
                 pass
 
     def write_questions(self):
-        with open(self.csv_file, "w", newline='') as file:
-            field_names = ['question_id', 'enabled', 'question_text', 'question_type', 'choices', 'answer']
+        with open(self.questions_csv, "w", newline='') as file:
+            field_names = ['question_id', 'enabled', 'question_text', 'question_type', 'choices', 'answer', 'guessed', 'corect']
             writer = csv.DictWriter(file, fieldnames=field_names)
-            writer.writeheader()            
+            writer.writeheader()
             for question in self.questions:
                 writer.writerow(question)
 
     def reset_questions(self):
         if self.yes_no('Are you sure you want to reset all questions?'):
-            with open(self.csv_file, 'w') as file:
+            with open(self.questions_csv, 'w') as file:
                 file.write('')
             self.questions.clear()
             print('Question reset completed.')
@@ -125,24 +128,24 @@ class Questionnaire():
 
     def enable_disable(self):
         id, status = self.is_enabled()
-        print(f"Debug: id={id}, status={status}") 
+        print(f"Debug: id={id}, status={status}")
         q = self.questions[id-1]
-        print(f"Debug: q={q}") 
+        print(f"Debug: q={q}")
 
         print(f'Question: {q["question_text"]}')
         if q['question_type'] == 'c':
             print('Choices:')
-            for index, choice in enumerate(q['choices'], start=1):    
+            for index, choice in enumerate(q['choices'], start=1):
                 print(f'{index}. {choice}')
         print(f'Answer: {q["answer"]}')
 
-        if status == True:
+        if status:
             if self.yes_no('Question is enabled. Do you want to disable it?'):
                 q['enabled'] = False
         else:
             if self.yes_no('Question is disabled. Do you want to enable it?'):
                 q['enabled'] = True
-        
+
     def enable_disable_mode(self):
         while True:
             self.enable_disable()
@@ -150,7 +153,7 @@ class Questionnaire():
             if not answer:
                 self.write_questions()
                 break
-    
+
     def yes_no(self, prompt):
         while True:
             answer = input(f'{prompt}\n[Yes/No] ').strip().lower()
@@ -158,7 +161,7 @@ class Questionnaire():
                 return True
             elif answer in ['no', 'n']:
                 return False
-            
+
     def test_mode(self):
         available_questions = self.enabled_count()
 
@@ -183,8 +186,17 @@ class Questionnaire():
         sequence = ids[:question_number]
         points = self.ask_more_questions(sequence)
 
+        result = f'{points}/{question_number}'
+        self.write_result(result)
+
         print(f'You have answered {points} questions correctly.')
         wait_for_keypress()
+
+    def write_result(self, result):
+        write_date = datetime.now().strftime('%Y-%m-%d,%H:%M:%S')
+
+        with open('results.txt', 'a') as file:
+            file.write(','.join([result, write_date]) + '\n')
         
 
 def wait_for_keypress():
