@@ -1,8 +1,6 @@
 question_id,enabled,question_text,question_type,choices,answer
-1,True,what,choice,"['a', 'b', 'c', 'd', 'a', 'b', 'c']",a
-1,True,where,choice,"['a', 'b', 'c', 'd', 'a', 'b', 'c']",a
-3,True,what is ,choice,"['a', 'b']",a
-4,True,where is what?,choice,"['some', 'where', 'there', 'fish', 'chip']",there
-5,True,what is it?,choice,"['some', 'where', 'there', 'fish', 'chip']",chip
-6,True,what ,choice,"['a', 'b', 'c', 'd']",a
-7,True,where,choice,"['a', 'b', 'c']",b
+1,True,what,c,"['a', 'b', 'c', 'd']",a
+2,True,where,c,"['a', 'b', 'c', 'd']",c
+3,True,what is the capital of Lithuania?,c,"['Kaunas', 'Riga', 'Vilnius']",Vilnius
+4,True,what is the longest river in the world?,c,"['Nemunas', 'Amazon', 'Dubysa']",Amazon
+5,True,Which color is the best?,c,"['yellow', 'blue', 'green', 'red']",green
