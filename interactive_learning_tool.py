@@ -24,7 +24,7 @@ def main():
         if mode == 0:
             questionnaire.input_multiple_questions()
         elif mode == 1:
-            pass
+            questionnaire.view_statistics()
         elif mode == 2:
             questionnaire.enable_disable_mode()
         elif mode == 3:

@@ -1,5 +1,5 @@
 question_id,enabled,question_text,question_type,choices,answer,guessed,correct
-1,True,How many regions are in lithuania?,c,"['3', '4', '5', '2']",4,2,2
+1,False,How many regions are in lithuania?,c,"['3', '4', '5', '2']",4,2,2
 2,True,What is the best color?,c,"['yellow', 'blue', 'red', 'green']",green,1,1
 3,True,What is my name?,c,"['arnsa', 'arnas', 'marius']",arnas,1,0
 4,True,What is better?,c,"['dog', 'cat']",cat,2,1

@@ -6,6 +6,11 @@ from datetime import datetime
 from question import Question
 
 
+def wait_for_keypress():
+    print("Press any key to continue...")
+    getch.getch()  # Wait for a keypress
+
+
 class Questionnaire():
     def __init__(self, questions_csv='questions.csv', statistics_csv='statistics.csv'):
         self.questions_csv = questions_csv
@@ -202,8 +207,11 @@ class Questionnaire():
             file.write(','.join([result, write_date]) + '\n')
 
     def view_statistics(self):
-        pass
+        print('Statistics:\n')
+        for q in self.questions:
+            print(f'ID: {q["question_id"]} | Enabled: {q["enabled"]}\nQuestion: {q["question_text"]}')
+            # if q['question_type'] == 'c':    
+            #     print('Choices:', ' | '.join(q['choices']))
+            print(f'Question was asked{q["guessed"]} times | Answered correctly: {q["correct"]}\n')
+        wait_for_keypress()
 
-def wait_for_keypress():
-    print("Press any key to continue...")
-    getch.getch()  # Wait for a keypress
