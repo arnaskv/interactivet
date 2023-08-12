@@ -1,6 +1,7 @@
 question_id,enabled,question_text,question_type,choices,answer,guessed,correct
-1,True,what,c,"['a', 'b', 'c', 'd']",a,0,0
-2,True,where,c,"['a', 'b', 'c', 'd']",c,0,0
-3,True,what is the capital of Lithuania?,c,"['Kaunas', 'Riga', 'Vilnius']",Vilnius,0,0
-4,True,what is the longest river in the world?,c,"['Nemunas', 'Amazon', 'Dubysa']",Amazon,0,0
-5,True,Which color is the best?,c,"['yellow', 'blue', 'green', 'red']",green,0,0
+1,True,How many regions are in lithuania?,c,"['3', '4', '5', '2']",4,2,2
+2,True,What is the best color?,c,"['yellow', 'blue', 'red', 'green']",green,1,1
+3,True,What is my name?,c,"['arnsa', 'arnas', 'marius']",arnas,1,0
+4,True,What is better?,c,"['dog', 'cat']",cat,2,1
+5,True,Are people nice in general?,f,[],yes,2,1
+6,True,What is the best ice cream flavor?,c,"['caramel', 'chocolate', 'vanilla', 'strawberry']",vanilla,1,1

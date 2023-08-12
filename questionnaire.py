@@ -44,21 +44,24 @@ class Questionnaire():
                     return
 
     def ask_question(self, id):
-        q = {}
-        for question in self.questions:
-            if id == int(question['question_id']):
-                q = question
-        print(f'{q["question_id"]}. {q["question_text"]}')
+        q = 0
+        for index, question in enumerate(self.questions):
+            if id == question['question_id']:
+                q = self.questions[index]
+
+        q['guessed'] += 1
+
+        print(f'\n{q["question_id"]}. {q["question_text"]}')
         if q['question_type'] =='c':
             for choice in q['choices']:
                 print(f'- {choice}')
-            user_choice = input('Your choice: ').lower()
-            if user_choice == q['answer'].lower():
-                print('Correct!')
-                return True
-            else:
-                print('That is not right!')
-                return False
+        user_choice = input('Your answer: ').lower()
+        if user_choice == q['answer'].lower():
+            q['correct'] += 1
+            return True
+        else:
+            return False
+        
 
     def ask_more_questions(self, sequence):
         points = 0
@@ -88,7 +91,7 @@ class Questionnaire():
 
     def write_questions(self):
         with open(self.questions_csv, "w", newline='') as file:
-            field_names = ['question_id', 'enabled', 'question_text', 'question_type', 'choices', 'answer', 'guessed', 'corect']
+            field_names = ['question_id', 'enabled', 'question_text', 'question_type', 'choices', 'answer', 'guessed', 'correct']
             writer = csv.DictWriter(file, fieldnames=field_names)
             writer.writeheader()
             for question in self.questions:
@@ -119,18 +122,17 @@ class Questionnaire():
             if id == int(q['question_id']):
                 return id, q['enabled']
 
-    def enabled_count(self):
-        count = 0
+    def enabled_questions(self):
+        """"Returns enabled questions id's list, len id's = total enabled count"""
+        enabled = []
         for q in self.questions:
             if q['enabled'] == True:
-                count += 1
-        return count
+                enabled.append(q['question_id'])
+        return enabled
 
     def enable_disable(self):
         id, status = self.is_enabled()
-        print(f"Debug: id={id}, status={status}")
         q = self.questions[id-1]
-        print(f"Debug: q={q}")
 
         print(f'Question: {q["question_text"]}')
         if q['question_type'] == 'c':
@@ -163,7 +165,7 @@ class Questionnaire():
                 return False
 
     def test_mode(self):
-        available_questions = self.enabled_count()
+        available_questions = len(self.enabled_questions())
 
         if available_questions < 5:
             print('Not enough questions. Minimum: 5')
@@ -188,6 +190,7 @@ class Questionnaire():
 
         result = f'{points}/{question_number}'
         self.write_result(result)
+        self.write_questions()
 
         print(f'You have answered {points} questions correctly.')
         wait_for_keypress()
@@ -197,7 +200,9 @@ class Questionnaire():
 
         with open('results.txt', 'a') as file:
             file.write(','.join([result, write_date]) + '\n')
-        
+
+    def view_statistics(self):
+        pass
 
 def wait_for_keypress():
     print("Press any key to continue...")
