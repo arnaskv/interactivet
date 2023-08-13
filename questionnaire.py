@@ -2,6 +2,8 @@ import getch
 import csv
 import random
 import ast
+import json
+import numpy
 from datetime import datetime
 from question import Question
 
@@ -16,12 +18,12 @@ class Questionnaire():
         self.questions_csv = questions_csv
         self.questions = []
         self.load_questions()
-        self.points = 0
 
     def add_question(self, question):
         self.questions.append(question)
 
     def input_question(self):
+        """Prompts user to input a question"""
         question_text = input('Your question: ').capitalize()
         question_id = self.get_new_id()
 
@@ -49,10 +51,22 @@ class Questionnaire():
                     return
 
     def ask_question(self, id):
-        q = 0
+        """
+        Asks user a question.
+        Adds +1 to question guessed times.
+        Adds +1 to question correct key if answered right.
+
+        Args:
+            question_id(int)
+        
+        Returns:
+            Bool value whether user answer was correct.
+        """
+        q = ''
         for index, question in enumerate(self.questions):
             if id == question['question_id']:
                 q = self.questions[index]
+                break
 
         q['guessed'] += 1
 
@@ -60,31 +74,29 @@ class Questionnaire():
         if q['question_type'] =='c':
             for choice in q['choices']:
                 print(f'- {choice}')
-        user_choice = input('Your answer: ').lower()
-        if user_choice == q['answer'].lower():
+        user_answer = input('Your answer: ').lower()
+        if user_answer == q['answer'].lower():
             q['correct'] += 1
             return True
         else:
             return False
-        
 
     def ask_more_questions(self, sequence):
+        """Asks questions in a given sequence  and tracks points for correct aswers"""
         points = 0
         for number in sequence:
             if self.ask_question(number):
                 points += 1
         return points
 
-    def get_points(self):
-        return self.points
-
     def load_questions(self):
+        """Takes question data from csv file, parses it into required data types and loads into questions[]"""
         try:
             with open(self.questions_csv, "r") as file:
                 reader = csv.DictReader(file)
                 for question in reader:
                     question['question_id'] = int(question['question_id'])
-                    question['enabled'] = bool(question['enabled'])
+                    question['enabled'] = json.loads(question['enabled'].lower())
                     question['choices'] = ast.literal_eval(question['choices'])
                     question['guessed'] = int(question['guessed'])
                     question['correct'] = int(question['correct'])
@@ -95,14 +107,17 @@ class Questionnaire():
                 pass
 
     def write_questions(self):
+        """Writes questions to a csv file"""
         with open(self.questions_csv, "w", newline='') as file:
             field_names = ['question_id', 'enabled', 'question_text', 'question_type', 'choices', 'answer', 'guessed', 'correct']
             writer = csv.DictWriter(file, fieldnames=field_names)
             writer.writeheader()
             for question in self.questions:
+                # if question['enabled']: question['enabled'] = 1 else: question['enabled'] = 0
                 writer.writerow(question)
 
     def reset_questions(self):
+        """Clears all questions available in stack and in questions.csv"""
         if self.yes_no('Are you sure you want to reset all questions?'):
             with open(self.questions_csv, 'w') as file:
                 file.write('')
@@ -114,54 +129,59 @@ class Questionnaire():
     def get_new_id(self):
         return len(self.questions) + 1
 
-    def is_enabled(self):
-        while True:
-            try:
-                id = int(input('Question id: '))
-                if id-1 >= self.get_new_id():
-                    raise ValueError
-                break
-            except ValueError:
-                print('"Id" must be a valid integer in scope.')
-        for q in self.questions:
-            if id == int(q['question_id']):
-                return id, q['enabled']
-
     def enabled_questions(self):
-        """"Returns enabled questions id's list, len id's = total enabled count"""
+        """"Returns enabled questions ids list"""
         enabled = []
         for q in self.questions:
             if q['enabled'] == True:
                 enabled.append(q['question_id'])
         return enabled
 
-    def enable_disable(self):
-        id, status = self.is_enabled()
-        q = self.questions[id-1]
-
-        print(f'Question: {q["question_text"]}')
-        if q['question_type'] == 'c':
+    def print_out_question(self, index):
+        question = self.questions[index]
+        print(f'Question: {question["question_text"]}')
+        if question['question_type'] == 'c':
             print('Choices:')
-            for index, choice in enumerate(q['choices'], start=1):
+            for index, choice in enumerate(question['choices'], start=1):
                 print(f'{index}. {choice}')
-        print(f'Answer: {q["answer"]}')
+        print(f'Answer: {question["answer"]}')
 
-        if status:
-            if self.yes_no('Question is enabled. Do you want to disable it?'):
-                q['enabled'] = False
-        else:
-            if self.yes_no('Question is disabled. Do you want to enable it?'):
-                q['enabled'] = True
+    def enable_disable(self):
+        """Asks for question id, if valid, asks if user wants to change enabled status"""
+        id = None
+        try:
+            id = int(input('Question id: '))
+        except ValueError:
+            print('"Id" must be an integer.')
+
+        for index, question in enumerate(self.questions):
+            if id == question['question_id']:
+                self.print_out_question(index)
+                if id in self.enabled_questions():
+                    if self.yes_no('Question is enabled. Do you want to disable it?'):
+                        question['enabled'] = False
+                        return
+                else:
+                    if self.yes_no('Question is disabled. Do you want to enable it?'):
+                        question['enabled'] = True
+                        return
+        print('Question not found.')
 
     def enable_disable_mode(self):
         while True:
             self.enable_disable()
-            answer = self.yes_no('Do you wish to change the state of another question?')
+            answer = self.yes_no('Disable/enable another question?')
             if not answer:
                 self.write_questions()
                 break
 
     def yes_no(self, prompt):
+        """
+        Promts user to choose [Yes/No]
+        
+        Returns:
+            bool value of the answer
+        """
         while True:
             answer = input(f'{prompt}\n[Yes/No] ').strip().lower()
             if  answer in ['yes', 'y']:
@@ -201,17 +221,55 @@ class Questionnaire():
         wait_for_keypress()
 
     def write_result(self, result):
+        """Writes test mode results, date, time to a txt file."""
         write_date = datetime.now().strftime('%Y-%m-%d,%H:%M:%S')
 
         with open('results.txt', 'a') as file:
             file.write(','.join([result, write_date]) + '\n')
 
     def view_statistics(self):
+        """Prints out condensed information about all available questions"""
         print('Statistics:\n')
         for q in self.questions:
             print(f'ID: {q["question_id"]} | Enabled: {q["enabled"]}\nQuestion: {q["question_text"]}')
-            # if q['question_type'] == 'c':    
-            #     print('Choices:', ' | '.join(q['choices']))
-            print(f'Question was asked{q["guessed"]} times | Answered correctly: {q["correct"]}\n')
+            if q['question_type'] == 'c':    
+                print('Choices:', ' | '.join(q['choices']))
+            print(f'Question asked: {q["guessed"]} | Answered correctly: {q["correct"]}\n')
         wait_for_keypress()
 
+    def question_weight(self, id):
+        x, y = 0
+        for q in self.questions:
+            if id == q['question_id']:
+                x = float(q['correct'])
+                y = float(q['guessed'])
+        try:
+            p = x/y
+            return p
+        except ZeroDivisionError:
+            return 1
+
+    def practice(self):
+        """Asks questions randomly with inverse weighed choice"""
+        print('Practice mode. To exit mode enter "ctrl + d"')
+        try:
+            available_questions = len(self.enabled_questions())
+
+            if available_questions < 5:
+                print('Not enough questions. Minimum: 5')
+                wait_for_keypress()
+                return
+            
+            while True:
+                weights = []
+                for question in self.enabled_questions():
+                    weights.append(self.question_weight(question))
+                
+                weights = numpy.reciprocal(weights)
+                weights = weights / numpy.sum(weights)
+
+                random_choice = numpy.random.choice(self.questions, p=weights)
+                self.ask_question(random_choice)
+        except EOFError:
+            self.write_questions()
+            pass

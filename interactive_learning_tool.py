@@ -12,7 +12,7 @@ def main():
                 ['6','Reset', 'R'],
                 ['7','Quit', 'Q'],
             ]
-    
+
     print('Hi, this is your interactive learning tool.')
     questionnaire = Questionnaire()
 
@@ -28,7 +28,7 @@ def main():
         elif mode == 2:
             questionnaire.enable_disable_mode()
         elif mode == 3:
-            pass
+            questionnaire.practice()
         elif mode == 4:
             questionnaire.test_mode()
         elif mode == 5:
