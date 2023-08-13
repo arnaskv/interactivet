@@ -1,0 +1,3 @@
+question_id,enabled,question_text,question_type,choices,answer,guessed,correct
+1,True,How many regions are in Lithuania?,c,"['3', '4', '5', '2']",4,8,3
+2,True,What is the best color?,c,"['yellow', 'blue', 'red', 'green']",green,4,2

@@ -1,10 +1,10 @@
-import getch
 import csv
 import random
 import ast
 import json
-import numpy
 from datetime import datetime
+import numpy
+import getch
 from question import Question
 
 
@@ -68,17 +68,17 @@ class Questionnaire():
                 q = self.questions[index]
                 break
 
-        q['guessed'] += 1
-
-        print(f'\n{q["question_id"]}. {q["question_text"]}')
+        print(f'\n{q["question_text"]}')
         if q['question_type'] =='c':
             for choice in q['choices']:
                 print(f'- {choice}')
         user_answer = input('Your answer: ').lower()
         if user_answer == q['answer'].lower():
+            q['guessed'] += 1
             q['correct'] += 1
             return True
         else:
+            q['guessed'] += 1
             return False
 
     def ask_more_questions(self, sequence):
@@ -190,6 +190,7 @@ class Questionnaire():
                 return False
 
     def test_mode(self):
+        """Asks user the amount of questions requested in a randomized order from enabled questions"""
         available_questions = len(self.enabled_questions())
 
         if available_questions < 5:
@@ -238,16 +239,15 @@ class Questionnaire():
         wait_for_keypress()
 
     def question_weight(self, id):
-        x, y = 0
         for q in self.questions:
             if id == q['question_id']:
                 x = float(q['correct'])
                 y = float(q['guessed'])
-        try:
-            p = x/y
-            return p
-        except ZeroDivisionError:
-            return 1
+                try:
+                    weight = x/y
+                    return weight
+                except ZeroDivisionError:
+                    return 1
 
     def practice(self):
         """Asks questions randomly with inverse weighed choice"""
@@ -268,8 +268,7 @@ class Questionnaire():
                 weights = numpy.reciprocal(weights)
                 weights = weights / numpy.sum(weights)
 
-                random_choice = numpy.random.choice(self.questions, p=weights)
+                random_choice = numpy.random.choice(self.enabled_questions(), p=weights)
                 self.ask_question(random_choice)
         except EOFError:
             self.write_questions()
-            pass

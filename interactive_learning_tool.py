@@ -22,6 +22,7 @@ def main():
         mode = get_choice(modes, promt='Mode: ')
 
         if mode == 0:
+            print("Add questions mode:")
             questionnaire.input_multiple_questions()
         elif mode == 1:
             questionnaire.view_statistics()

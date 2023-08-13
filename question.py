@@ -1,5 +1,6 @@
 class Question:
-    def __init__(self, question_id, question_text, question_type=None, answer='', enabled=True):  
+    """Question class for handling single question handling and input"""
+    def __init__(self, question_id, question_text, question_type=None, answer='', enabled=True):
         self.question_id = question_id
         self.enabled = enabled
         self.question_text = question_text
