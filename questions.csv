@@ -1,9 +1,9 @@
 question_id,enabled,question_text,question_type,choices,answer,guessed,correct
-1,True,How many regions are in Lithuania?,c,"['3', '4', '5', '2']",4,8,3
+1,True,How many regions are in Lithuania?,c,"['3', '4', '5', '2']",4,10,4
 2,True,What is the best color?,c,"['yellow', 'blue', 'red', 'green']",green,4,2
 3,False,What is my name?,c,"['Matas', 'Arnas', 'Marius']",arnas,7,4
-4,True,What is better?,c,"['dog', 'cat']",cat,8,5
+4,True,What is better?,c,"['dog', 'cat']",cat,9,5
 5,True,Are people nice in general?,f,[],yes,14,10
-6,True,What is the best ice cream flavor?,c,"['caramel', 'chocolate', 'vanilla', 'strawberry']",vanilla,3,2
+6,True,What is the best ice cream flavor?,c,"['caramel', 'chocolate', 'vanilla', 'strawberry']",vanilla,4,2
 7,True,Which continent is the biggest?,c,"['Europe', 'Asia', 'Africa', 'North America']",Asia,2,2
 8,True,Immutable meaning?,f,[],unchanging over time or unable to change,2,2
